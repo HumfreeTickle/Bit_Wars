@@ -15,11 +15,14 @@ public class Move : MonoBehaviour
 
 	public bool facingRight{ get; set; }// = true;
 	private float jumpForce;
+	//----- Camera Stuff -----//
 	private Transform followCamera;
-
+	public float cameraBaseRestriction = 0f;
 	public CircleCollider2D offTheGround{ private get; set; }
 
 	public Animator playerAnimation{ private get; set; }
+
+
 
 	void Start ()
 	{
@@ -105,7 +108,7 @@ public class Move : MonoBehaviour
 		}
 
 		Vector3 playerPosition = gameManager.currentPlayer.transform.position;
-		Vector3 moveCameraPosition = new Vector3 (playerPosition.x, Mathf.Clamp (playerPosition.y, 0.8f, Mathf.Infinity), -10);
+		Vector3 moveCameraPosition = new Vector3 (playerPosition.x, Mathf.Clamp (playerPosition.y, cameraBaseRestriction, Mathf.Infinity), -10);
 		followCamera.position = moveCameraPosition;
 	}
 }

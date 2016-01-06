@@ -34,7 +34,6 @@ public class GameManager : MonoBehaviour
 	public List<string> player2{ get; private set; }
 
 	private Transform Team2;
-
 	public List<Transform> ground;
 	//-------------------------------//
 
@@ -68,6 +67,14 @@ public class GameManager : MonoBehaviour
 	private GameObject weaponsMenu;
 	private float menuDefaultX;
 
+	//--------------------//
+	public float maxHeight = 6;
+	public float minHeight = 0;
+	public float maxWidth = 14;
+	public float minWidth = -19;
+	//--------------------//
+
+
 	void Awake ()
 	{
 		startTime = Time.time;
@@ -80,12 +87,7 @@ public class GameManager : MonoBehaviour
 		menuDefaultX = weaponsMenu.GetComponent<RectTransform> ().localPosition.x;
 
 		currentGameState = GameState.Start;
-		//----------------- Setting up the ground --------------------//
-		Transform level = GameObject.Find("Level").transform;
-		ground = new List<Transform>(level.childCount);
-		for (int groundChild = 0; groundChild < level.childCount; groundChild++) {
-			ground.Add (level.GetChild (groundChild).transform);
-		}
+
 
 		//----------------- Setting up the teams----------------------//
 
@@ -94,21 +96,6 @@ public class GameManager : MonoBehaviour
 		player1 = new List<string> (Team1.childCount);
 		player2 = new List<string> (Team2.childCount);
 
-		for (int character = 0; character < Team1.childCount; character++) {
-			if (Team1.GetChild (character).position.x > centreOfTheMap.position.x) {
-				moving.FlipIt (Team1.GetChild (character).gameObject);
-			}
-			player1.Add (Team1.GetChild (character).name);
-			SpawnCharacters(Team1.GetChild (character).transform);
-		}
-
-		for (int character = 0; character < Team2.childCount; character++) {
-			if (Team2.GetChild (character).position.x > centreOfTheMap.position.x) {
-				moving.FlipIt (Team2.GetChild (character).gameObject);
-			} 
-			player2.Add (Team2.GetChild (character).name);
-			SpawnCharacters(Team2.GetChild (character).transform);
-		}
 
 		//------------------------------------------------------------//
 		threshold = setThreshold;
@@ -116,40 +103,61 @@ public class GameManager : MonoBehaviour
 
 	}
 
-	void SpawnCharacters(Transform currentCharacter){
-		// Take the transform of all the gameObjects in the "Ground" layer
-		// Y = Position of Ground + character height
-		// X = Random poition along it's length
-		// No two characters can have the same positon though. This could be the trickiest part
-		// Also a check to see whether there is a block there or not
+	void SpawnCharacters (Transform currentCharacter)
+	{
+		// Probably needs to be a Transform[] parameter
+		// with a foreach loop
 
-		int randomBlock = Random.Range(0, ground.Count);
-		float spawnX = ground[randomBlock].position.x + Random.Range(-ground[randomBlock].lossyScale.x/2.5f, ground[randomBlock].lossyScale.x/2.5f);
-		float spawnY = ground[randomBlock].position.y + currentCharacter.lossyScale.y;
+		int randomBlock = Random.Range (0, ground.Count);
+		float spawnX = ground [randomBlock].position.x + Random.Range (-ground [randomBlock].lossyScale.x, ground [randomBlock].lossyScale.x) / 2;
+		float spawnY = ground [randomBlock].position.y + currentCharacter.lossyScale.y;
 
-
-
-		currentCharacter.position = new Vector2(spawnX, spawnY);
-
-
-		// Need to rethink this
-//		foreach(Transform groundObject in ground){
-//			if(currentCharacter.GetComponent<Collider2D>().bounds.Intersects(groundObject.GetComponent<Collider2D>().bounds)){
-//				print (currentCharacter +" intersected " + groundObject.name);
-//				SpawnCharacters(currentCharacter);
-//			}
-//		}
-
-//		ground.RemoveAt(randomBlock);
+		currentCharacter.position = new Vector2 (Mathf.Clamp (spawnX, minWidth, maxWidth), Mathf.Clamp (spawnY, minHeight, maxHeight));
 	}
 
 	void Start ()
 	{
+		//----------------- Setting up the ground --------------------//
+		Transform level = GameObject.Find ("Level").transform;
+		ground = new List<Transform> (level.childCount);
+
+		for (int groundChild = 0; groundChild < level.childCount; groundChild++) {
+			if (level.GetChild (groundChild).gameObject.layer == LayerMask.NameToLayer ("Ground"))
+				ground.Add (level.GetChild (groundChild).transform);
+		}
+
+		//----------------- Spawning Teams --------------------//
+
+		for (int character = 0; character < Team1.childCount; character++) {
+			if (Team1.GetChild (character).position.x > centreOfTheMap.position.x) {
+				moving.FlipIt (Team1.GetChild (character).gameObject);
+			}
+			player1.Add (Team1.GetChild (character).name);
+			
+			// Move into Terrain Manager
+			SpawnCharacters (Team1.GetChild (character).transform);
+		}
+		
+		for (int character = 0; character < Team2.childCount; character++) {
+			if (Team2.GetChild (character).position.x > centreOfTheMap.position.x) {
+				moving.FlipIt (Team2.GetChild (character).gameObject);
+			} 
+			player2.Add (Team2.GetChild (character).name);
+			
+			// Move into Terrain Manager
+			SpawnCharacters (Team2.GetChild (character).transform);
+		}
+
+
 		StartCoroutine (StartGame ());
 	}
 
 	void Update ()
 	{		
+		if (Input.GetKeyDown (KeyCode.R)) {
+			Application.LoadLevel (0);
+		}
+
 		displayedGameState = currentGameState;
 		if (currentGameState != GameState.Start) {
 

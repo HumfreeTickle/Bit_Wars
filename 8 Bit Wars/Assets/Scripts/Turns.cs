@@ -54,7 +54,7 @@ public class Turns : MonoBehaviour
 			}
 
 			if (gameManager.currentPlayer != null) {
-				print ("Turn for: " + gameManager.currentPlayer.name + "(" + gameManager.currentPlayersTurn + ")");
+//				print ("Turn for: " + gameManager.currentPlayer.name + "(" + gameManager.currentPlayersTurn + ")");
 				movementManager.rb = gameManager.currentPlayer.GetComponent<Rigidbody2D> ();
 				movementManager.playerAnimation = gameManager.currentPlayer.GetComponent<Animator> ();
 				movementManager.offTheGround = gameManager.currentPlayer.GetComponent<CircleCollider2D> ();

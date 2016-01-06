@@ -4,8 +4,8 @@ using System.Collections.Generic;
 
 public class Level_Colliders : MonoBehaviour
 {
-	private Vector2 col_Offset_Pos = new Vector2 (0, 0.5f);
-	private Vector2 col_Offset_Neg = new Vector2 (0, -0.5f);
+//	private Vector2 col_Offset_Pos = new Vector2 (0, 0.5f);
+//	private Vector2 col_Offset_Neg = new Vector2 (0, -0.5f);
 
 	/// <summary>
 	/// 0 - right
@@ -13,177 +13,228 @@ public class Level_Colliders : MonoBehaviour
 	/// 2 - down
 	/// 3 - up
 	/// </summary>
-	private Dictionary<string, EdgeCollider2D> colliders_Edge{get; set;} 
-	public GameObject box2;
-	public GameObject box3;
-	public GameObject box4;
-	public GameObject box5;
+//	private Dictionary<string, EdgeCollider2D> colliders_Edge{ get; set; }
+
+//	private Dictionary<string, bool> colliders_Edge{ get; set; }
+	
 	public List<GameObject> edgeIntersects;//{get; private set;}
 
 	void Awake ()
 	{
-		colliders_Edge = new Dictionary<string, EdgeCollider2D> (4);
+		if(transform.position.y < 6){
+			Direction ();
+		}
+	}
 
-		if (box2 && box3 && box4 && box5) {
+	void Start ()
+	{
+		if (edgeIntersects.Count >= 4) {
+			EdgeColliders ();
+		}
+		float roundedX = Mathf.RoundToInt (transform.position.x);
+		float roundedY = Mathf.RoundToInt (transform.position.y);
+		transform.position = new Vector3 (roundedX, roundedY, transform.position.z);
+	}
 
-			edgeIntersects = new List<GameObject> (4);
-			edgeIntersects.Add (box2);
-			edgeIntersects.Add (box3);
-			edgeIntersects.Add (box4);
-			edgeIntersects.Add (box5);
+	public void Direction ()
+	{
+		Vector2 directionOfRay = Vector2.up;
 
-			CheckSurroundings ();
+		for (int direction = 0; direction < 4; direction++) {
+			switch (direction) {
+			case 0:
+				directionOfRay = Vector2.up;
+				RayCastSurroundings (directionOfRay);
+				break;
+			case 1:
+				directionOfRay = Vector2.right;
+				RayCastSurroundings (directionOfRay);
+				break;
+			case 2:
+				directionOfRay = Vector2.right * -1;
+				RayCastSurroundings (directionOfRay);
+				break;
+			case 3:
+				directionOfRay = Vector2.up * -1;
+				RayCastSurroundings (directionOfRay);
+				break;
+			default:
+				Debug.LogError ("Ray went wrong");
+				break;
+			}
+		}
+
+		CheckSurroundings ();
+	}
+
+	void RayCastSurroundings (Vector2 directionOfRay)
+	{
+		RaycastHit2D[] hitInfo = Physics2D.RaycastAll (transform.position, directionOfRay, 1);
+
+		foreach (RaycastHit2D hit in hitInfo) {
+			if (hit.collider.gameObject != this.gameObject) {
+				if (hit.collider != null) {
+//					Debug.Log (this.gameObject.name + " : " + hit.collider.gameObject.name + directionOfRay);
+					edgeIntersects.Add (hit.collider.gameObject);
+				} else {
+					Debug.LogWarning ("Raycast failed");
+				}
+			}
 		}
 	}
 
 	public void CheckSurroundings ()
 	{
-		Bounds boxBounds = this.GetComponent<Renderer> ().bounds;
+//		colliders_Edge = new Dictionary<string, EdgeCollider2D> (edgeIntersects.Count);
+//		colliders_Edge = new Dictionary<string, bool> (edgeIntersects.Count);
 
-		for (int intersect = 0; intersect < edgeIntersects.Count; intersect++) {
-
-			if (boxBounds.Intersects (edgeIntersects [intersect].GetComponent<Renderer> ().bounds)) {
-
-				// ------- RIGHT ------- //
-				if (edgeIntersects [intersect].transform.position.x > transform.position.x &&
-				    edgeIntersects [intersect].transform.position.y == transform.position.y) {
-//					print(this.gameObject.name);
-//					print (edgeIntersects [intersect].name + " right");
-					if (colliders_Edge.ContainsKey ("right")) {
-						Destroy (colliders_Edge ["right"]);
-					} 
-				} else {
-					if (!colliders_Edge.ContainsKey ("right")) {
-						EdgeCollider2D edge = gameObject.AddComponent<EdgeCollider2D> ();
-						colliders_Edge.Add ("right", edge);
-					} 
-				}
-
-				// ------- LEFT ------- //
-				if (edgeIntersects [intersect].transform.position.x < transform.position.x &&
-				    edgeIntersects [intersect].transform.position.y == transform.position.y) {
-//					print(this.gameObject.name);
-//					print (edgeIntersects [intersect].name + " left");
-				
-					if (colliders_Edge.ContainsKey ("left")) {
-						Destroy (colliders_Edge ["left"]);
-					} 
-				} else {
-					if (!colliders_Edge.ContainsKey ("left")) {
-						EdgeCollider2D edge = gameObject.AddComponent<EdgeCollider2D> ();
-						colliders_Edge.Add ("left", edge);
-					} 
-
-				} 
-
-				// ------- DOWN ------- //
-				if (edgeIntersects [intersect].transform.position.y < transform.position.y &&
-				    edgeIntersects [intersect].transform.position.x == transform.position.x) {
-//					print(this.gameObject.name);
+		
+		
+//		Bounds boxBounds = this.GetComponent<Renderer> ().bounds;
 //
-//					print (edgeIntersects [intersect].name + " down");
-					if (colliders_Edge.ContainsKey ("down")) {
-						Destroy (colliders_Edge ["down"]);
-					} 
-				} else {
-					if (!colliders_Edge.ContainsKey ("down")) {
-						EdgeCollider2D edge = gameObject.AddComponent<EdgeCollider2D> ();
-						colliders_Edge.Add ("down", edge);
-					}
-				}
 
-				// ------- UP ------- //
-				if (edgeIntersects [intersect].transform.position.y > transform.position.y &&
-				    edgeIntersects [intersect].transform.position.x == transform.position.x) {
-//					print(this.gameObject.name);
+//			if (boxBounds.Intersects (edgeIntersects [intersect].GetComponent<Renderer> ().bounds)) {
 //
-//					print (edgeIntersects [intersect].name + " up");
-					if (colliders_Edge.ContainsKey ("up")) {
-						Destroy (colliders_Edge ["up"]);
-					} 
-				} else {
-					if (!colliders_Edge.ContainsKey ("up")) {
-						EdgeCollider2D edge = gameObject.AddComponent<EdgeCollider2D> ();
-						colliders_Edge.Add ("up", edge);
-					}
-				} 
-			}
+//				// ------- RIGHT ------- //
+//				if (edgeIntersects [intersect].transform.position.x > transform.position.x &&
+//					edgeIntersects [intersect].transform.position.y == transform.position.y) {
+////					print(this.gameObject.name);
+////					print (edgeIntersects [intersect].name + " right");
+////					if (colliders_Edge.ContainsKey ("right")) {
+		//////						break;
+////					} 
+////				} else {
+////					if (!colliders_Edge.ContainsKey ("right")) {
+//////						EdgeCollider2D edge = gameObject.AddComponent<EdgeCollider2D> ();
+//						colliders_Edge.Add ("right", true);
+////					} 
+//				}
+//
+//				// ------- LEFT ------- //
+//				if (edgeIntersects [intersect].transform.position.x < transform.position.x &&
+//					edgeIntersects [intersect].transform.position.y == transform.position.y) {
+////					print(this.gameObject.name);
+////					print (edgeIntersects [intersect].name + " left");
+//				
+////					if (colliders_Edge.ContainsKey ("left")) {
+		//////						break;
+////					} 
+////				} else {
+////					if (!colliders_Edge.ContainsKey ("left")) {
+////						EdgeCollider2D edge = gameObject.AddComponent<EdgeCollider2D> ();
+//						colliders_Edge.Add ("left", true);
+////					} 
+//
+//				} 
+//
+//				// ------- DOWN ------- //
+//				if (edgeIntersects [intersect].transform.position.y < transform.position.y &&
+//					edgeIntersects [intersect].transform.position.x == transform.position.x) {
+////					print (this.gameObject.name + " INTERSECTS " + edgeIntersects [intersect].name + ": DOWN");
+////					if (colliders_Edge.ContainsKey ("down")) {
+		//////						break;
+////					} 
+////				} else {
+////					if (!colliders_Edge.ContainsKey ("down")) {
+////						EdgeCollider2D edge = gameObject.AddComponent<EdgeCollider2D> ();
+//						colliders_Edge.Add ("down", true);
+////					}
+//				}
+//
+		
+//			}
+//		}
+	
+
+
+		
+		
+		//			if (GetComponent<EdgeCollider2D> ()) {
+//				EdgeCollider2D[] edges = GetComponents<EdgeCollider2D> ();
+//				foreach (EdgeCollider2D edge in edges) {
+//					Destroy (edge);
+//				}
+//			}
+
+		if (!gameObject.GetComponent<BoxCollider2D> ()) {
+			gameObject.AddComponent<BoxCollider2D> ();
+//				colliders_Edge.Clear ();
+
 		}
 
-		if (colliders_Edge.Count > 0) {
-			EdgeColliders ();
-		}else{
-			gameObject.AddComponent<BoxCollider2D>();
+//			edgeIntersects.Clear();
+//			print(this.gameObject);
+		if (edgeIntersects.Count < 4) {
+
+			gameObject.tag = "Ground";
+
+			for (int intersect = 0; intersect < edgeIntersects.Count; intersect++) {
+				// ------- UP ------- //
+				if (edgeIntersects [intersect].transform.position.y > transform.position.y) {
+					if (gameObject.layer != LayerMask.NameToLayer ("Ground")) {
+						gameObject.layer = LayerMask.NameToLayer ("UnLayered");
+						break;
+					}
+				} else {
+					gameObject.layer = LayerMask.NameToLayer ("Ground");
+				}
+
+//				// ------- DOWN ------- //
+//				if (edgeIntersects [intersect].transform.position.y < transform.position.y) {
+//					gameObject.layer = LayerMask.NameToLayer ("UnLayered");
+//					break;
+//				} else {
+//					gameObject.layer = LayerMask.NameToLayer ("Ground");
+//				}
+//
+//				// ------- RIGHT ------- //
+//				if (edgeIntersects [intersect].transform.position.x > transform.position.x){
+//					gameObject.layer = LayerMask.NameToLayer ("UnLayered");
+//					break;
+//				} else {
+//					gameObject.layer = LayerMask.NameToLayer ("Ground");
+//				}
+//
+//				// ------- LEFT ------- //
+//				if (edgeIntersects [intersect].transform.position.x < transform.position.x){
+//					gameObject.layer = LayerMask.NameToLayer ("UnLayered");
+//					break;
+//				} else {
+//					gameObject.layer = LayerMask.NameToLayer ("Ground");
+//				}
+
+			}
 		}
 	}
 
 	void EdgeColliders ()
-	{
-		if (colliders_Edge.ContainsKey ("down")) {
-			colliders_Edge ["down"].offset = col_Offset_Neg;
-		}
+	{	
+//		if (colliders_Edge.ContainsKey ("down")) {
+//			colliders_Edge ["down"].offset = col_Offset_Neg;
+//		}
+//
+//		if (colliders_Edge.ContainsKey ("right")) {
+//			Vector2[] tempArray = colliders_Edge ["right"].points;
+//			colliders_Edge ["right"].offset = col_Offset_Pos;
+//			tempArray [0].x = 0.5f;
+//			tempArray [0].y = -1;
+//			colliders_Edge ["right"].points = tempArray;
+//		}
+//
+//		if (colliders_Edge.ContainsKey ("left")) {
+//			Vector2[] tempArray = colliders_Edge ["left"].points;
+//			colliders_Edge ["left"].offset = col_Offset_Pos;
+//			tempArray [1].x = -0.5f;
+//			tempArray [1].y = -1;
+//			colliders_Edge ["left"].points = tempArray;
+//		}
+//
+//		if (colliders_Edge.ContainsKey ("up")) {
+//			colliders_Edge ["up"].offset = col_Offset_Pos;
+//		}
 
-		if (colliders_Edge.ContainsKey ("right")) {
-			Vector2[] tempArray = colliders_Edge ["right"].points;
-			colliders_Edge ["right"].offset = col_Offset_Pos;
-			tempArray [0].x = 0.5f;
-			tempArray [0].y = -1;
-			colliders_Edge ["right"].points = tempArray;
-		}
-
-		if (colliders_Edge.ContainsKey ("left")) {
-			Vector2[] tempArray = colliders_Edge ["left"].points;
-			colliders_Edge ["left"].offset = col_Offset_Pos;
-			tempArray [1].x = -0.5f;
-			tempArray [1].y = -1;
-			colliders_Edge ["left"].points = tempArray;
-		}
-
-		if (colliders_Edge.ContainsKey ("up")) {
-			colliders_Edge ["up"].offset = col_Offset_Pos;
-		}
-
-		colliders_Edge.Clear();
-
-		gameObject.tag = "Ground";
-	}
-
-	public void OnBlockDestroyed(List<GameObject> edgesList){
-		for (int intersect = 0; intersect < edgesList.Count; intersect++) {
-			edgesList[intersect].GetComponent<Level_Colliders>().edgeIntersects.Remove(this.gameObject);
-//			edgesList[intersect].GetComponent<Level_Colliders>().colliders_Edge.Clear();
-			edgesList[intersect].GetComponent<Level_Colliders>().CheckSurroundings();
-		}
-
-		Destroy(this.gameObject);
+//		colliders_Edge.Clear ();
+		edgeIntersects.Clear ();
+		Destroy (GetComponent<BoxCollider2D> ());
 	}
 }
-
-
-
-
-
-//EdgeCollider2D edge1 = gameObject.AddComponent<EdgeCollider2D> ();
-//					EdgeCollider2D edge2 = gameObject.AddComponent<EdgeCollider2D> ();
-//					EdgeCollider2D edge4 = gameObject.AddComponent<EdgeCollider2D> ();
-//
-//					if (!colliders_Edge.ContainsKey ("right")) {
-//						colliders_Edge.Add ("right", edge1);
-//					} else {
-//						colliders_Edge.Remove ("right");
-//						Destroy(edge1);
-//					}
-//				
-//					if (!colliders_Edge.ContainsKey ("left")) {
-//						colliders_Edge.Add ("left", edge2);
-//					} else {
-//						colliders_Edge.Remove ("left");
-//						Destroy(edge2);
-//					}
-//
-//					if (!colliders_Edge.ContainsKey ("up")) {
-//						colliders_Edge.Add ("up", edge4);
-//					} else {
-//						colliders_Edge.Remove ("up");
-//						Destroy(edge4);
-//					}

@@ -4,26 +4,28 @@ using System.Collections;
 public class FireTesting : MonoBehaviour
 {	
 	private GameManager gameManager;
-
 	public GameObject bullet;
 	private GameObject firedBullet;
 	public float bulletSpeed;
 	public float distanceFromPlayer = 0.1f;
 
-	void Start(){
-		gameManager = GetComponent<GameManager>();
+	void Start ()
+	{
+		gameManager = GetComponent<GameManager> ();
 	}
 
 	void Update ()
 	{
-		if (bullet) {
-			if (Input.GetKeyUp (KeyCode.F)) {
-				if (!IsInvoking ("Fire")) {
-					Invoke ("Fire", 0.1f);
+		if (gameManager.currentGameState == GameState.Game) {
+			if (bullet) {
+				if (Input.GetKeyUp (KeyCode.F)) {
+					if (!IsInvoking ("Fire")) {
+						Invoke ("Fire", 0.1f);
+					}
 				}
+			} else {
+				Debug.LogError ("Out of Ammo " + gameObject.name); 
 			}
-		} else {
-			Debug.LogError ("Out of Ammo " + gameObject.name); 
 		}
 	}
 
