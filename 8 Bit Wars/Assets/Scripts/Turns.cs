@@ -118,21 +118,15 @@ public class Turns : MonoBehaviour
 				}
 			}
 
-			switch (gameManager.currentPlayersTurn) {
-			case CurrentGo.Player1:
-				gameManager.currentPlayersTurn = CurrentGo.Player2;
-				gameManager.currentPlayer = GameObject.Find (gameManager.player2 [gameManager.nextPlayer]);
-				break;
-			case CurrentGo.Player2:
-				gameManager.currentPlayersTurn = CurrentGo.Player1;
-				gameManager.currentPlayer = GameObject.Find (gameManager.player1 [gameManager.nextPlayer]);
-				break;
-			default:
-				
-				break;
-			}
+			ChangePlayer();
+
+			print(gameManager.currentPlayer);
 
 			yield return new WaitForSeconds (1);
+			if(gameManager.currentPlayer == null){
+				ChangePlayer();
+			}
+
 			//-- Moves camera to next player --//
 			while (Vector2.Distance(followCamera.position, gameManager.currentPlayer.transform.position) > gameManager.threshold) {
 
@@ -160,6 +154,23 @@ public class Turns : MonoBehaviour
 			print ("GameOver");
 			print ("Play Time: " + (Time.time - gameManager.startTime));
 			yield break;
+		}
+	}
+
+	void ChangePlayer(){
+
+		switch (gameManager.currentPlayersTurn) {
+		case CurrentGo.Player1:
+			gameManager.currentPlayersTurn = CurrentGo.Player2;
+			gameManager.currentPlayer = GameObject.Find (gameManager.player2 [gameManager.nextPlayer]);
+			break;
+		case CurrentGo.Player2:
+			gameManager.currentPlayersTurn = CurrentGo.Player1;
+			gameManager.currentPlayer = GameObject.Find (gameManager.player1 [gameManager.nextPlayer]);
+			break;
+		default:
+			
+			break;
 		}
 	}
 }

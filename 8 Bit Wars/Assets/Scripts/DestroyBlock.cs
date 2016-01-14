@@ -2,17 +2,36 @@
 using System.Collections;
 using System.Collections.Generic;
 
+public class DestroyBlock : MonoBehaviour
+{
+	public GameObject destroyParticleEffect;
 
-public class DestroyBlock : MonoBehaviour{
 	public void OnBlockDestroyed (List<GameObject> edgesList, GameObject block)
 	{
-		Destroy (block);
-		for (int intersect = 0; intersect < edgesList.Count; intersect++) {
-			edgesList[intersect].layer = LayerMask.NameToLayer("Ground");
-			edgesList [intersect].GetComponent<Level_Colliders> ().edgeIntersects.Clear ();
-			edgesList [intersect].GetComponent<Level_Colliders> ().Direction ();
+		if(destroyParticleEffect){
+			Vector3 placement = new Vector3(block.transform.position.x, block.transform.position.y - block.transform.lossyScale.y/2,  block.transform.position.z);
+			Instantiate(destroyParticleEffect, placement , Quaternion.identity);
 		}
-		
+//		ReCheckBlocks(edgesList);
+		Destroy (block);
+	}
+
+	/// <summary>
+	/// Rechecks surrounding on all blocks near destroyed block
+	/// </summary>
+	/// <param name="edgesList">List of all ground blocks touch the destroyed block.</param>
+	void ReCheckBlocks(List<GameObject> edgesList){
+
+		for (int intersect = 0; intersect < edgesList.Count; intersect++) {
+			if (edgesList [intersect] != null) {
+				edgesList [intersect].layer = LayerMask.NameToLayer ("Ground");
+				edgesList [intersect].GetComponent<Level_Colliders> ().edgeIntersects.Clear ();
+				edgesList [intersect].GetComponent<Level_Colliders> ().Direction ();
+			}else{
+				edgesList.RemoveAt(intersect);
+				ReCheckBlocks(edgesList);
+			}
+		}
 	}
 }
 
