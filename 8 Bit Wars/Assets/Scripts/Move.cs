@@ -7,6 +7,7 @@ public class Move : MonoBehaviour
 {
 	private GameManager gameManager;
 
+
 	public Rigidbody2D rb { private get; set; }
 
 	public Vector3 startingPosition{ private get; set; }
@@ -15,11 +16,14 @@ public class Move : MonoBehaviour
 
 	public bool facingRight{ get; set; }// = true;
 	private float jumpForce;
+
 	//----- Camera Stuff -----//
 	private Transform followCamera;
+	public float CameraSize = 3;
 	public float cameraBaseRestriction = 0f;
-	public CircleCollider2D offTheGround{ private get; set; }
+	//-----------------------//
 
+	public CircleCollider2D offTheGround{ private get; set; }
 	public Animator playerAnimation{ private get; set; }
 
 
@@ -103,8 +107,8 @@ public class Move : MonoBehaviour
 	
 	void MoveCamera ()
 	{
-		if(followCamera.GetComponent<Camera>().orthographicSize > 3){
-			followCamera.GetComponent<Camera>().orthographicSize = Mathf.Lerp(followCamera.GetComponent<Camera>().orthographicSize , 3, Time.deltaTime*2);
+		if(followCamera.GetComponent<Camera>().orthographicSize > CameraSize){
+			followCamera.GetComponent<Camera>().orthographicSize = Mathf.Lerp(followCamera.GetComponent<Camera>().orthographicSize , CameraSize, Time.deltaTime*2);
 		}
 
 		Vector3 playerPosition = gameManager.currentPlayer.transform.position;

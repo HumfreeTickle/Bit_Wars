@@ -161,7 +161,6 @@ public class GameManager : MonoBehaviour
 			SpawnCharacters (Team2.GetChild (character).transform);
 		}
 
-
 		StartCoroutine (StartGame ());
 	}
 
@@ -181,7 +180,7 @@ public class GameManager : MonoBehaviour
 					health = currentPlayer.GetComponent<Health> ().currentHealth;
 					
 					// Removes the player from the Team list and destroys the gameObject
-					if (currentPlayer.transform.position.y < -3 || health <= 0) {
+					if (currentPlayer.transform.position.y < -10 || health <= 0) {
 						switch (currentPlayersTurn) {
 						case CurrentGo.Player1:
 							player1.Remove (currentPlayer.name);

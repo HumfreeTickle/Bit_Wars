@@ -101,10 +101,10 @@ public class Turns : MonoBehaviour
 		startCoroutine = true;
 		
 		//-- Counts down till end of turn --//
-		while (_timer >= 0 && gameManager.currentPlayer != null) {
-			TimerDisplay.text = _timer.ToString ();
-			yield return new WaitForSeconds (1);
-			_timer -= 1;
+		while (_timer >= 0 && gameManager.currentPlayer != null && gameManager.currentGameState != GameState.ChangeTurn) {
+			TimerDisplay.text = Mathf.Round(_timer).ToString ();
+			_timer -= Time.deltaTime;
+			yield return null;
 		}
 
 		if (gameManager.currentGameState != GameState.GameOver) {
@@ -146,7 +146,23 @@ public class Turns : MonoBehaviour
 			startCoroutine = false;
 			yield return null;
 
+
+			bool startTurn = false;
+			float startTurnTimer = 5;
+
+			while(!startTurn){
+				TimerDisplay.text = Mathf.RoundToInt(startTurnTimer).ToString ();
+
+				if(Input.GetKeyUp(KeyCode.S) || startTurnTimer <= 0){
+					startTurn = true;
+				}
+				startTurnTimer -= Time.deltaTime;
+
+				yield return null;
+			}
+
 			TurnUpdateInitialise ();
+
 			gameManager.currentGameState = GameState.Game;
 			yield break;
 

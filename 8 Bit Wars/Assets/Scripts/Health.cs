@@ -9,14 +9,20 @@ public class Health : MonoBehaviour
 
 	public float currentHealth { get; set; }
 
+	private float savedHealth;
 	private float _timer;
 	private TextMesh healthDisplay;
 	private SpriteRenderer healthRenderer;
+	private Turns turns;
 
 	void Start ()
 	{
 		currentHealth = 100;
+		savedHealth = currentHealth;
+
 		gameManager = GameObject.Find ("GameManger").GetComponent<GameManager> ();
+		turns = GameObject.Find ("GameManger").GetComponent<Turns> ();
+
 		healthBar = transform.GetChild (0).gameObject;
 		healthRenderer = healthBar.GetComponent<SpriteRenderer> ();
 		healthDisplay = healthBar.transform.GetChild (0).GetComponent<TextMesh> ();
@@ -27,9 +33,11 @@ public class Health : MonoBehaviour
 		DamageColourChange ();
 		DisplayHealth ();
 
-		if (currentHealth <= 0 || transform.position.y < -3) {
-			gameManager.player1.Remove (this.gameObject.name);
-			Destroy (this.gameObject);
+		if (savedHealth > currentHealth) {
+			savedHealth = currentHealth;
+//			gameManager.currentGameState = GameState.ChangeTurn;
+
+			StartCoroutine (turns.TurnsCoroutine ());
 		}
 	}
 
