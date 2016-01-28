@@ -35,13 +35,15 @@ public class GameManager : MonoBehaviour
 
 	//-------------------------------//
 
+	public List<GameObject> teams {get; set;}
+
 	public GameObject currentPlayer{ get; set; }
 
 	public List<string> player1{ get; private set; }
-	private TeamManager Team1;
+	private TeamManager Team1_Manager;
 
 	public List<string> player2{ get; private set; }
-	private TeamManager Team2;
+	private TeamManager Team2_Manager;
 
 	public List<Color> teamColor;//{get;set;}
 
@@ -98,6 +100,8 @@ public class GameManager : MonoBehaviour
 		teamColor = new List<Color>(2);
 		teamColor.Add(Color.white);
 		teamColor.Add(Color.white);
+
+		teams = new List<GameObject>(2);
 	}
 
 	void OnLevelWasLoaded (int level)
@@ -118,6 +122,7 @@ public class GameManager : MonoBehaviour
 
 	//--------------- Main Game Screen -------------------//
 		if (level == 2) {
+			teams = new List<GameObject>(2);
 			turns = GetComponent<Turns> ();
 			moving = GetComponent<Move> ();
 
@@ -136,8 +141,13 @@ public class GameManager : MonoBehaviour
 
 			//----------------- Setting up the teams----------------------//
 
-			Team1 = GameObject.Find ("Team 1").GetComponent<TeamManager> ();
-			Team2 = GameObject.Find ("Team 2").GetComponent<TeamManager> ();
+//			Instantiate(teams[0], Vector3.zero, Quaternion.identity);
+//			Instantiate(teams[1], Vector3.zero, Quaternion.identity);
+
+			print(teams.Count);
+
+			Team1_Manager = GameObject.Find ("Team 1").GetComponent<TeamManager> ();
+			Team2_Manager = GameObject.Find ("Team 2").GetComponent<TeamManager> ();
 
 			//------------------------------------------------------------//
 			threshold = setThreshold;
@@ -179,11 +189,13 @@ public class GameManager : MonoBehaviour
 			}	
 		}
 
-		Team1.InitialiseTeams (moving, centreOfTheMap);
-		Team2.InitialiseTeams (moving, centreOfTheMap);
+		Team1_Manager.InitialiseTeams (moving, centreOfTheMap);
+		Team2_Manager.InitialiseTeams (moving, centreOfTheMap);
 
-		player1 = Team1.players;
-		player2 = Team2.players;
+		player1 = Team1_Manager.players;
+		player2 = Team2_Manager.players;
+
+		moving.CameraSetup ();
 
 	}
 
@@ -209,7 +221,7 @@ public class GameManager : MonoBehaviour
 
 		if (currentGameState != GameState.Start) {
 
-			if (Team1.players.Count == 0 || Team2.players.Count == 0) {
+			if (Team1_Manager.players.Count == 0 || Team2_Manager.players.Count == 0) {
 				currentGameState = GameState.GameOver;
 				print ("GameOver");
 				print ("Play Time: " + (Time.time - startTime));

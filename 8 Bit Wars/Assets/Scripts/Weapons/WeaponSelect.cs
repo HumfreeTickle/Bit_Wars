@@ -26,10 +26,11 @@ public class WeaponSelect : MonoBehaviour
 
 		for (int child = 0; child < transform.childCount; child ++) {
 			Transform childButton = transform.GetChild (child);
-			// adds listener to each button that calls the WeaponSelected function
+
+
+			// adds listener to each button that calls the CheckAmmo function
 			childButton.GetComponent<Button> ().onClick.AddListener (delegate { 
 				CheckAmmo (transform.FindChild (childButton.name));
-//				WeaponSelected (transform.FindChild (childButton.name));
 			});
 			transform.GetChild (child).gameObject.SetActive (false);
 		}

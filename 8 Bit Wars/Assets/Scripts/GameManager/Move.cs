@@ -26,7 +26,7 @@ public class Move : MonoBehaviour
 
 	public Animator playerAnimation{ private get; set; }
 
-	void Start ()
+	public void CameraSetup ()
 	{
 		gameManager = GetComponent<GameManager> ();
 		followCamera = GameObject.Find ("Main Camera").transform;
