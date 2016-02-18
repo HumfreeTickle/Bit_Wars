@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.SceneManagement;
+
 
 public class Level_Colliders : MonoBehaviour
 {
@@ -14,7 +16,8 @@ public class Level_Colliders : MonoBehaviour
 	private GameManager gameManager;
 	private List<Transform> ground;
 	public List<Transform> groundBlockList;
-	public List<GameObject> edgeIntersects;//{get; private set;}
+	public List<GameObject> edgeIntersects;
+	//{get; private set;}
 
 	public bool levelTesting = false;
 
@@ -23,26 +26,28 @@ public class Level_Colliders : MonoBehaviour
 
 	void Awake ()
 	{
-		gameManager = GameObject.Find("GameManger").GetComponent<GameManager>();
-		ground = new List<Transform> (transform.childCount);
-
-
-		// aligns all the blocks to nearest int
-		for (int i = 0; i < transform.childCount; i++) {
-			ground.Add (transform.GetChild (i).transform);
-			
-			float roundedX = Mathf.RoundToInt (transform.GetChild (i).transform.position.x * 100);
-			float roundedY = Mathf.RoundToInt (transform.GetChild (i).transform.position.y * 100);
-
-			transform.GetChild (i).transform.position = new Vector3 (roundedX/100, roundedY/100, transform.GetChild (i).transform.position.z);
-		}
-
-		if (Application.loadedLevelName == "Level Creation Testing") {
+		if (SceneManager.GetActiveScene ().name == "Level Creation Testing") {
 			levelTesting = true;
 		} else {
 			levelTesting = false;
 		}
 
+		if (!levelTesting) {	
+			gameManager = GameObject.Find ("GameManger").GetComponent<GameManager> ();
+		}
+
+		ground = new List<Transform> (transform.childCount);
+
+//		 aligns all the blocks to nearest int
+		for (int i = 0; i < transform.childCount; i++) {
+			ground.Add (transform.GetChild (i).transform);
+			
+//			float roundedX = Mathf.RoundToInt ((transform.GetChild (i).transform.position.x - 0.25f) * 2);
+//			float roundedY = Mathf.RoundToInt (transform.GetChild (i).transform.position.y * 2);
+//
+//			transform.GetChild (i).transform.position = new Vector3 (roundedX / 2, roundedY / 2, transform.GetChild (i).transform.position.z);
+		}
+			
 		if (!levelTesting) {
 			Direction (ground);
 		}
@@ -82,13 +87,13 @@ public class Level_Colliders : MonoBehaviour
 //			print (edgeIntersects.Count);
 			if (edgeIntersects.Count < 4) {
 				CheckSurroundings (block);
-			}else{
+			} else {
 				block.gameObject.tag = "Ground";
 				block.gameObject.layer = LayerMask.NameToLayer ("UnLayered");
 				foreach (GameObject edge in edgeIntersects) {
 					block.GetComponent<Surroundings> ().surroundingBlocks.Add (edge.transform);
 				}
-				edgeIntersects.Clear();
+				edgeIntersects.Clear ();
 			}
 		}
 	}
@@ -134,16 +139,20 @@ public class Level_Colliders : MonoBehaviour
 				if (intersect.transform.position.y > currentBlock.position.y || currentBlock.position.y >= gameManager.maxHeight) {
 					if (currentBlock.gameObject.layer != LayerMask.NameToLayer ("Ground")) {
 						currentBlock.gameObject.layer = LayerMask.NameToLayer ("UnLayered");
-						currentBlock.GetComponent<SpriteRenderer>().sprite = dirt;
 
+						if (!levelTesting) {
+							currentBlock.GetComponent<SpriteRenderer> ().sprite = dirt;
+						}
 					}
 				} 
 			}
 
 			if (currentBlock.gameObject.layer != LayerMask.NameToLayer ("UnLayered")) {
 				currentBlock.gameObject.layer = LayerMask.NameToLayer ("Ground");
-				currentBlock.GetComponent<SpriteRenderer>().sprite = dirt_Grass;
-//				currentBlock.gameObject.AddComponent<Rigidbody2D>();
+
+				if (!levelTesting) {
+					currentBlock.GetComponent<SpriteRenderer> ().sprite = dirt_Grass;
+				}//				currentBlock.gameObject.AddComponent<Rigidbody2D>();
 
 				groundBlockList.Add (currentBlock);
 
@@ -152,20 +161,23 @@ public class Level_Colliders : MonoBehaviour
 		} else if (edgeIntersects.Count <= 0) {
 			currentBlock.gameObject.tag = "Ground";
 			currentBlock.gameObject.layer = LayerMask.NameToLayer ("Ground");
-			currentBlock.GetComponent<SpriteRenderer>().sprite = dirt_Grass;
+			if (!levelTesting) {
+				currentBlock.GetComponent<SpriteRenderer> ().sprite = dirt_Grass;
+			}
 			groundBlockList.Add (currentBlock);
 		}
 
 		// Adds list of surrounding blocks into that block's surrounding's list
 		foreach (GameObject edge in edgeIntersects) {
-			currentBlock.GetComponent<Surroundings>().CullBlocks(edge.transform);
+			currentBlock.GetComponent<Surroundings> ().CullBlocks (edge.transform);
 		}
 
 
 		edgeIntersects.Clear ();
 	}
 
-}// End of script
+}
+// End of script
 
 
 
@@ -195,7 +207,7 @@ public class Level_Colliders : MonoBehaviour
 //				}
 
 
-//------------------------------------ Bounds Checks -----------------------------------------------//		
+//------------------------------------ Bounds Checks -----------------------------------------------//
 //		Bounds boxBounds = this.GetComponent<Renderer> ().bounds;
 //
 	
@@ -208,12 +220,12 @@ public class Level_Colliders : MonoBehaviour
 ////					print (edgeIntersects [intersect].name + " right");
 ////					if (colliders_Edge.ContainsKey ("right")) {
 //////						break;
-////					} 
+////					}
 ////				} else {
 ////					if (!colliders_Edge.ContainsKey ("right")) {
 //////						EdgeCollider2D edge = gameObject.AddComponent<EdgeCollider2D> ();
 //						colliders_Edge.Add ("right", true);
-////					} 
+////					}
 //				}
 //
 //				// ------- LEFT ------- //
@@ -221,17 +233,17 @@ public class Level_Colliders : MonoBehaviour
 //					edgeIntersects [intersect].transform.position.y == transform.position.y) {
 ////					print(this.gameObject.name);
 ////					print (edgeIntersects [intersect].name + " left");
-//				
+//
 ////					if (colliders_Edge.ContainsKey ("left")) {
 //////						break;
-////					} 
+////					}
 ////				} else {
 ////					if (!colliders_Edge.ContainsKey ("left")) {
 ////						EdgeCollider2D edge = gameObject.AddComponent<EdgeCollider2D> ();
 //						colliders_Edge.Add ("left", true);
-////					} 
+////					}
 //
-//				} 
+//				}
 //
 //				// ------- DOWN ------- //
 //				if (edgeIntersects [intersect].transform.position.y < transform.position.y &&
@@ -239,7 +251,7 @@ public class Level_Colliders : MonoBehaviour
 ////					print (this.gameObject.name + " INTERSECTS " + edgeIntersects [intersect].name + ": DOWN");
 ////					if (colliders_Edge.ContainsKey ("down")) {
 //////						break;
-////					} 
+////					}
 ////				} else {
 ////					if (!colliders_Edge.ContainsKey ("down")) {
 ////						EdgeCollider2D edge = gameObject.AddComponent<EdgeCollider2D> ();
@@ -264,7 +276,7 @@ public class Level_Colliders : MonoBehaviour
 
 
 //	void EdgeColliders ()
-//	{	
+//	{
 ////		if (colliders_Edge.ContainsKey ("down")) {
 ////			colliders_Edge ["down"].offset = col_Offset_Neg;
 ////		}

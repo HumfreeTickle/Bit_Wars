@@ -1,12 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-[RequireComponent(typeof(CircleCollider2D))]
+[RequireComponent (typeof(CircleCollider2D))]
 
 public class Test_explosion : MonoBehaviour
 {
 	public GameObject energyParticles;
 	public GameObject explosionParticles;
+
+	[Range (0, 100)]
+	public float explostionSize;
+// = Mathf.Clamp(3, 0, 100);
 
 	void OnCollisionEnter2D (Collision2D col)
 	{
@@ -42,7 +46,8 @@ public class Test_explosion : MonoBehaviour
 	void Explosion (Collision2D col)
 	{
 		GetComponent<Renderer> ().enabled = false;
-		GetComponent<CircleCollider2D> ().radius = Mathf.Clamp (GetComponent<CircleCollider2D> ().radius * 3, 0, 5);
+
+		GetComponent<CircleCollider2D> ().radius = Mathf.Clamp (GetComponent<CircleCollider2D> ().radius * explostionSize, 0, 5);
 		ContactPoint2D contact = col.contacts [0];
 		Quaternion particleRotation = Quaternion.FromToRotation (Vector3.right * col.transform.localScale.x, contact.normal);
 		Vector3 particlePosition = contact.point;

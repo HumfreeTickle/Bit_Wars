@@ -17,12 +17,12 @@ public class Bomb : MonoBehaviour
 
 	void Update ()
 	{
-		if (gameManager.canFire) {
+		if (GameManager.canFire) {
 			if (Input.GetKeyUp (KeyCode.F)) {
 				if (!IsInvoking ("ThrowBomb")) {
 					Invoke ("ThrowBomb", 0.1f);
 				}
-				gameManager.canFire = false;
+				GameManager.canFire = false;
 			}
 		} 
 	}

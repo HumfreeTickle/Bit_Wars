@@ -15,6 +15,7 @@ public class Health : MonoBehaviour
 	private SpriteRenderer healthRenderer;
 	private Turns turns;
 
+
 	void Start ()
 	{
 		currentHealth = 100;
@@ -26,6 +27,10 @@ public class Health : MonoBehaviour
 		healthBar = transform.GetChild (0).gameObject;
 		healthRenderer = healthBar.GetComponent<SpriteRenderer> ();
 		healthDisplay = healthBar.transform.GetChild (0).GetComponent<TextMesh> ();
+
+		healthBar.transform.GetChild (0).transform.localPosition = new Vector3(0, 4, -2);
+		healthBar.transform.GetChild (0).transform.localScale = new Vector3(2, 3, 1);
+		healthDisplay.characterSize = 0.5f;
 	}
 	
 	void Update ()
@@ -52,7 +57,7 @@ public class Health : MonoBehaviour
 			savedHealth = currentHealth;
 
 			if(!turns.endTurn){
-			turns.endTurn = true;
+				turns.endTurn = true;
 			}
 		}
 	}

@@ -1,12 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class TerrainManager : MonoBehaviour
 {
+	private Level_Colliders levelColliders;
+	private List<Transform> ground;
+	private GameObject levelBlock;
 
-	public List<Transform> ground;
-	public GameObject levelBlock;
 	//--------------------//
 	public float maxHeight = 6;
 	public float minHeight = 0;
@@ -16,54 +18,87 @@ public class TerrainManager : MonoBehaviour
 
 	public int blockCount = 100;
 
+	private Vector2 parentVector;
+
 	void Awake ()
 	{
-		TerrainGenerator ();
-	}
+		parentVector = new Vector2(transform.position.x, transform.position.y );
 
-//	void Start ()
-//	{
-//		for (int block = 0; block < blockCount; block++) {
-//			foreach (Transform overlap in ground) {
-//				if (ground [block].position.x == overlap.position.x &&
-//					ground [block].position.y == overlap.position.y &&
-//					ground [block].name != overlap.name) {
-//					print (ground [block].name + " : " + overlap.name);
-//				}
-//			}
-//		}
-//	}
+		levelBlock = (GameObject)Resources.Load ("Cube");
+		ground = new List<Transform> (blockCount);
+		levelColliders = GetComponent<Level_Colliders> ();
+		TerrainGenerator ();
+
+	}
 
 	public void TerrainGenerator ()
 	{
-		int column = 0;
-		int row = 0;
+		//--------- Temp ----------//
+		float t_maxWidth = maxWidth; //temporary max width
+		float t_minWidth = minWidth; //temporary max width
+		float t_maxHeight = maxHeight; //temporary max width
+		float t_minHeight = minHeight; //temporary max width
+		//-------------------------//
+		float random_X = 0;
+		float random_Y;
 
-		float rangeX = minWidth;
-		float rangeY = minHeight;
+		Vector2 placement = Vector2.zero; //where the block should be placed within the scene
 
-		for (int block = 0; block < blockCount; block++) {
+		float blockCounter = 0;
+		Random.seed = Mathf.RoundToInt(blockCount * Time.time);
 
-//			float randomY = Mathf.RoundToInt (Random.Range (minHeight, maxHeight));
-//			float randomX = Mathf.RoundToInt (Random.Range (minWidth, maxWidth));
+		// spawns all the blocks
+		for (float block = 0; block < blockCount; block++) {
 
-			float randomX = Mathf.RoundToInt (rangeX + block);
-			float randomY = Mathf.RoundToInt (rangeY);
+			//---- Create a random placement on the map ----//
+			float temp_X = (Mathf.Clamp(levelBlock.transform.localScale.x , minWidth, maxWidth)); //width of the block
+			float temp_Y = (Mathf.Clamp(levelBlock.transform.localScale.y , minHeight, maxHeight)); //height of the block
+			float noiseNum = Mathf.PerlinNoise(temp_X/10, temp_Y/10);
 
-			if (randomX == maxWidth) {
-				rangeY += 1 + column;
-				rangeX = -(block - row - Random.Range (minWidth, maxWidth)); 
-//				maxWidth -= 1;
-				row += 1;
-			} 
+			random_Y = t_minHeight;
 
-			Vector3 randomPlacement = new Vector3 (Mathf.Clamp(randomX, minWidth, maxWidth) ,Mathf.Clamp(randomY,minHeight,maxHeight), 10);
+			Vector2 randomPlacement = new Vector2 (temp_X + random_X, temp_Y + random_Y);
+			placement = new Vector2 ( Mathf.Clamp(randomPlacement.x, -t_minWidth, t_maxWidth) ,randomPlacement.y); //new placement
 
-			GameObject newBlock = Instantiate (levelBlock, randomPlacement, Quaternion.identity) as GameObject;
-			newBlock.transform.parent = this.transform;
-			newBlock.name = "Cube " + "(" + block + ")";
-			ground.Add (newBlock.transform);
+
+			if (t_minHeight <= t_maxHeight) {
+				//---- Spawn block there (First block is placed at (0,0) ----//
+				GameObject newBlock = Instantiate (levelBlock, placement + parentVector , Quaternion.identity) as GameObject;
+
+				//-------------- Places them correctly in Hierarchy ----------------//
+				newBlock.transform.parent = this.transform;
+				newBlock.name = "Cube " + "(" + block + ")";
+				ground.Add (newBlock.transform);
+
+				blockCounter += 1;
+				if(blockCounter >= t_maxWidth){
+					//					
+					t_maxWidth += (levelBlock.transform.localScale.x * Mathf.RoundToInt(Random.Range(-1, 1)));
+					t_minWidth += (levelBlock.transform.localScale.x * Mathf.RoundToInt(Random.Range(-1, 1)));
+
+					t_minHeight += levelBlock.transform.localScale.y;
+
+					blockCounter = 0;
+					random_X = (Mathf.Round( (( blockCounter * noiseNum)* Mathf.RoundToInt(Random.Range(1, 4) ))*2 ))/2;
+
+					placement = Vector2.zero;
+				}else{
+					random_X = (Mathf.Round( (blockCounter  * (noiseNum))*2 ))/2;
+				}
+			} else {
+				print ("Max reached - " + block);
+				break;
+			}
 		}
-		GetComponent<Level_Colliders>().Direction(ground);
+
+//		levelColliders.Direction(ground);
+	}
+
+
+	void Update(){
+		if(Input.GetKeyDown(KeyCode.R)){
+			SceneManager.LoadScene("Level Creation Testing");
+		}
+
 	}
 }

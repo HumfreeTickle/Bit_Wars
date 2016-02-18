@@ -10,10 +10,11 @@ public class Name : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		nameTag = transform.FindChild("NameTag");
-		nameTag.localPosition = new Vector3(0, 1.4f, 0);
-		nameTag.localScale = nameTag.parent.localScale;
+		nameTag.localPosition = new Vector3(0, 1.5f, -0.15f);
+		nameTag.localScale = new Vector3(nameTag.parent.localScale.x * 1.5f, 1.5f, 1);
 
 		nameTag_Text = transform.FindChild("NameTag").GetComponent<TextMesh>();
+		nameTag_Text.characterSize = 0.15f;
 		DisplayName ();
 	}
 	

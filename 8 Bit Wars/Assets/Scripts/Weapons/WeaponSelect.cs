@@ -5,9 +5,12 @@ using UnityEngine.UI;
 
 public class WeaponSelect : MonoBehaviour
 {
+	// Might instatiate all the weapons at the start (well the ones you can use)
+	// Then just activate them/ deactivate them
+
+
 	public GameObject weapon1;
 	private GameManager gameManager;
-//	private FireTesting fireWeapon;
 	public List<GameObject> weaponsList;
 	public Vector3 offSetX;
 	private TeamManager Team1;
@@ -16,17 +19,15 @@ public class WeaponSelect : MonoBehaviour
 	void Start ()
 	{
 		gameManager = GameObject.Find ("GameManger").GetComponent<GameManager> ();
-//		fireWeapon = gameManager.GetComponent<FireTesting> ();
-
 		GetComponent<Image> ().enabled = false;
 
 
 		Team1 = GameObject.Find ("Team 1").GetComponent<TeamManager> ();
 		Team2 = GameObject.Find ("Team 2").GetComponent<TeamManager> ();
 
+		//-- Crates the weapon select buttons --//
 		for (int child = 0; child < transform.childCount; child ++) {
 			Transform childButton = transform.GetChild (child);
-
 
 			// adds listener to each button that calls the CheckAmmo function
 			childButton.GetComponent<Button> ().onClick.AddListener (delegate { 
@@ -72,10 +73,10 @@ public class WeaponSelect : MonoBehaviour
 			weapon.transform.parent = gameManager.currentPlayer.transform;
 //			fireWeapon.weaponName = buttonPressed.name;
 
-			print (buttonPressed.name);
+//			print (buttonPressed.name);
 			currentTeam.weaponsList [buttonPressed.name] -= 1;
 			currentTeam.UpdateAmmoDisplay(buttonPressed);
-			print ("Ammo left: " + currentTeam.weaponsList [buttonPressed.name]);
+//			print ("Ammo left: " + currentTeam.weaponsList [buttonPressed.name]);
 
 			// turns off menu once weapon has been selected
 			StartCoroutine (gameManager.Menu ());
