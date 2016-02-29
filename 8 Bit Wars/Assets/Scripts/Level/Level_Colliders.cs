@@ -32,8 +32,13 @@ public class Level_Colliders : MonoBehaviour
 			levelTesting = false;
 		}
 
-		if (!levelTesting) {	
-			gameManager = GameObject.Find ("GameManger").GetComponent<GameManager> ();
+		if (!levelTesting) {
+			if (GameObject.Find ("GameManger")) {	
+				gameManager = GameObject.Find ("GameManger").GetComponent<GameManager> ();
+			}else{
+				Debug.LogError("No GameManger");
+				UnityEditor.EditorApplication.isPaused = true;
+			}
 		}
 
 		ground = new List<Transform> (transform.childCount);

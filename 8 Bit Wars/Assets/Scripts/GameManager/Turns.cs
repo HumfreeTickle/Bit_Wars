@@ -43,32 +43,33 @@ public class Turns : MonoBehaviour
 
 	public void TurnUpdateInitialise ()
 	{
-		if (gameManager.currentGameState != GameState.GameOver) {
+		if (GameManager.currentGameState != GameState.GameOver) {
 			
 			// sets whether the next player is facing right or left
-			if (gameManager.currentPlayer.transform.localScale.x > 0) {
-				direction.facingRight = true;
-			} else if (gameManager.currentPlayer.transform.localScale.x < 0) {
-				direction.facingRight = false;
+			if (GameManager.currentPlayer.transform.localScale.x > 0) {
+				Move.facingRight = true;
+			} else if (GameManager.currentPlayer.transform.localScale.x < 0) {
+				Move.facingRight = false;
 			} else {
 				Debug.LogError ("Can't tell which way!!!");
 			}
 
-			if (gameManager.currentPlayer != null) {
+			if (GameManager.currentPlayer != null) {
 
-				movementManager.rb = gameManager.currentPlayer.GetComponent<Rigidbody2D> ();
-				movementManager.playerAnimation = gameManager.currentPlayer.GetComponent<Animator> ();
-				movementManager.offTheGround = gameManager.currentPlayer.GetComponent<CircleCollider2D> ();
+				movementManager.rb = GameManager.currentPlayer.GetComponent<Rigidbody2D> ();
+				movementManager.playerAnimation = GameManager.currentPlayer.GetComponent<Animator> ();
+				movementManager.offTheGround = GameManager.currentPlayer.GetComponent<CircleCollider2D> ();
 
 
-				Vector3 arrowLocation = new Vector3 (gameManager.currentPlayer.transform.position.x,
-					                        gameManager.currentPlayer.transform.position.y +
-					                        gameManager.currentPlayer.transform.lossyScale.y + 1,
-					                        gameManager.currentPlayer.transform.position.z
+				Vector3 arrowLocation = new Vector3 (
+					GameManager.currentPlayer.transform.position.x,
+					GameManager.currentPlayer.transform.position.y +
+					GameManager.currentPlayer.transform.lossyScale.y + 1,
+					GameManager.currentPlayer.transform.position.z
 				                        );
 
 				GameObject currentArrow = Instantiate (arrow, arrowLocation, Quaternion.identity) as GameObject;
-				currentArrow.transform.parent = gameManager.currentPlayer.transform;
+				currentArrow.transform.parent = GameManager.currentPlayer.transform;
 
 				GameManager.canFire = true;
 			}
@@ -102,7 +103,7 @@ public class Turns : MonoBehaviour
 		TimerDisplay.text = Mathf.Round (_timer).ToString ();
 
 		//-- Counts down till end of turn --//
-		while (_timer >= 0 && gameManager.currentPlayer != null && !endTurn) {
+		while (_timer >= 0 && GameManager.currentPlayer != null && !endTurn) {
 
 			TimerDisplay.text = Mathf.Round (_timer).ToString ();
 			TimerDisplay.GetComponent<Animator>().SetInteger("Timer",(int)_timer);
@@ -115,22 +116,22 @@ public class Turns : MonoBehaviour
 		}
 
 		// Used to allow the player time to move away from their current postion
-
+		TimerDisplay.text = "";
 		TimerDisplay.GetComponent<Animator>().SetInteger("Timer", 45);
 
 		yield return new WaitForSeconds (turnOver);
 
 		endTurn = false;
 	
-		if (gameManager.currentGameState != GameState.GameOver) {
-			gameManager.currentGameState = GameState.ChangeTurn;
+		if (GameManager.currentGameState != GameState.GameOver) {
+			GameManager.currentGameState = GameState.ChangeTurn;
 
 
 			// Destroys Weapon at the end of the turn
-			if (gameManager.currentPlayer != null) {
-				if (gameManager.currentPlayer.transform.childCount > 2) {
-					for (int child = 2; child < gameManager.currentPlayer.transform.childCount; child++) {
-						Destroy (gameManager.currentPlayer.transform.GetChild (child).gameObject);
+			if (GameManager.currentPlayer != null) {
+				if (GameManager.currentPlayer.transform.childCount > 2) {
+					for (int child = 2; child < GameManager.currentPlayer.transform.childCount; child++) {
+						Destroy (GameManager.currentPlayer.transform.GetChild (child).gameObject);
 //						gameManager.currentPlayer.transform.GetChild (child).gameObject.SetActive (false);
 					}
 				}
@@ -143,17 +144,17 @@ public class Turns : MonoBehaviour
 //			print ("Turn for: " + gameManager.currentPlayer.name + "(" + gameManager.currentPlayersTurn + ")");
 
 			// Back up incase something goes wrong
-			if (gameManager.currentPlayer == null) {
+			if (GameManager.currentPlayer == null) {
 				ChangePlayer ();
 			}
 			yield return null;
 
 
 			//-- Moves camera to next player --//
-			while (Vector2.Distance (followCamera.position, gameManager.currentPlayer.transform.position) > GameManager.threshold) {
+			while (Vector2.Distance (followCamera.position, GameManager.currentPlayer.transform.position) > GameManager.threshold) {
 
-				float cameraX = Mathf.Lerp (followCamera.position.x, gameManager.currentPlayer.transform.position.x, Time.fixedDeltaTime * gameManager.cameraSpeed);
-				float cameraY = Mathf.Lerp (followCamera.position.y, gameManager.currentPlayer.transform.position.y, Time.fixedDeltaTime * gameManager.cameraSpeed);
+				float cameraX = Mathf.Lerp (followCamera.position.x, GameManager.currentPlayer.transform.position.x, Time.fixedDeltaTime * gameManager.cameraSpeed);
+				float cameraY = Mathf.Lerp (followCamera.position.y, GameManager.currentPlayer.transform.position.y, Time.fixedDeltaTime * gameManager.cameraSpeed);
 
 				Vector3 moveCameraPosition = new Vector3 (cameraX, Mathf.Clamp (cameraY, 0.8f, Mathf.Infinity), -10);
 				followCamera.position = moveCameraPosition;
@@ -192,7 +193,7 @@ public class Turns : MonoBehaviour
 				yield return null;
 			}
 			turnOver = 5f;
-			gameManager.currentGameState = GameState.Game;
+			GameManager.currentGameState = GameState.Game;
 
 			yield break;
 
@@ -211,11 +212,11 @@ public class Turns : MonoBehaviour
 
 		case CurrentGo.Player1:
 			gameManager.currentPlayersTurn = CurrentGo.Player2;
-			gameManager.currentPlayer = GameObject.Find (gameManager.player2 [gameManager.nextPlayer]);
+			GameManager.currentPlayer = GameObject.Find (gameManager.player2 [gameManager.nextPlayer]);
 			break;
 		case CurrentGo.Player2:
 			gameManager.currentPlayersTurn = CurrentGo.Player1;
-			gameManager.currentPlayer = GameObject.Find (gameManager.player1 [gameManager.nextPlayer]);
+			GameManager.currentPlayer = GameObject.Find (gameManager.player1 [gameManager.nextPlayer]);
 			break;
 
 		default:

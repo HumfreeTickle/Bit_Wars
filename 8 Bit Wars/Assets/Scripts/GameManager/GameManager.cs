@@ -39,7 +39,7 @@ public class GameManager : MonoBehaviour
 
 	public List<string> teams { get; set; }
 
-	public GameObject currentPlayer{ get; set; }
+	static public GameObject currentPlayer{ get; set; }
 
 	public List<string> player1;
 	//{ get; private set; }
@@ -57,7 +57,7 @@ public class GameManager : MonoBehaviour
 
 	//-------------------------------//
 
-	public GameState currentGameState{ get; set; }
+	static public GameState currentGameState{ get; set; }
 
 	public GameState displayedGameState;
 
@@ -95,7 +95,7 @@ public class GameManager : MonoBehaviour
 					i = 0;
 				}
 
-			} else {
+			} else if (currentPlayersTurn == CurrentGo.Player2){
 				if (j < player2.Count - 1) {	
 					j = value; 
 				} else {
@@ -126,6 +126,9 @@ public class GameManager : MonoBehaviour
 
 	void Awake ()
 	{
+
+
+		Debug.Log("C# version: " + System.Environment.Version);
 		startTime = Time.time;
 		DontDestroyOnLoad (this.gameObject);
 		teamColor = new List<Color> (2);

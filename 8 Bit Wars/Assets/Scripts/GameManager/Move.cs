@@ -13,7 +13,8 @@ public class Move : MonoBehaviour
 
 	public Vector2 jumpingForce = new Vector2 (60, 120);
 
-	public bool facingRight{ get; set; }// = true;
+	static public bool facingRight{ get; set; }
+// = true;
 	private float jumpForce;
 
 	//----- Camera Stuff -----//
@@ -34,10 +35,10 @@ public class Move : MonoBehaviour
 
 	void Update ()
 	{
-		if (gameManager.currentGameState != GameState.ChangeTurn && gameManager.currentPlayer != null) {
+		if (GameManager.currentGameState != GameState.ChangeTurn && GameManager.currentPlayer != null) {
 
 			MoveCamera ();
-			if (gameManager.currentGameState != GameState.Menu) {
+			if (GameManager.currentGameState != GameState.Menu) {
 				MoveHorizontal ();
 
 				if (Input.GetButton ("Jump")) {
@@ -45,7 +46,7 @@ public class Move : MonoBehaviour
 				} else if (Input.GetButtonUp ("Jump")) {
 
 					if (rb.velocity == Vector2.zero) {
-						Jumping (Mathf.Clamp (jumpForce, 1, 2));
+						rb.AddForce (Jumping (Mathf.Clamp (jumpForce, 1, 2)));
 						jumpForce = 0;
 					}
 				}
@@ -63,14 +64,14 @@ public class Move : MonoBehaviour
 	{
 		//might be better to see if the local scale x is positive or negative and adjust accordingly
 		if (Input.GetAxisRaw ("Horizontal") > 0 && !facingRight) {
-			FlipIt (gameManager.currentPlayer);				
+			FlipIt (GameManager.currentPlayer, !facingRight);				
 
 		} else if (Input.GetAxisRaw ("Horizontal") < 0 && facingRight) {
-			FlipIt (gameManager.currentPlayer);
+			FlipIt (GameManager.currentPlayer, facingRight);
 		}
 
 		if (Mathf.Abs (Input.GetAxisRaw ("Horizontal")) > 0) {
-			gameManager.currentPlayer.transform.Translate (Vector3.right * gameManager.characterSpeed * Time.deltaTime * Input.GetAxis ("Horizontal"));
+			GameManager.currentPlayer.transform.Translate (Vector3.right * gameManager.characterSpeed * Time.deltaTime * Input.GetAxis ("Horizontal"));
 			playerAnimation.SetBool ("Moving", true);
 		} else {
 			playerAnimation.SetBool ("Moving", false);
@@ -81,7 +82,7 @@ public class Move : MonoBehaviour
 	/// Flips the player based on which direction you are moving.
 	/// </summary>
 	/// <param name="player">Player to flip.</param>
-	public void FlipIt (GameObject player)
+	static public void FlipIt (GameObject player, bool flip)
 	{
 		facingRight = !facingRight;
 
@@ -98,19 +99,31 @@ public class Move : MonoBehaviour
 
 	}
 
-	void Jumping (float addedForce = 1)
+	static public void Flip (GameObject currentPlayer, bool flip)
+	{
+		SpriteRenderer sRen = currentPlayer.GetComponent<SpriteRenderer> ();
+		sRen.flipX = flip;
+
+		for (int child = 0; child < currentPlayer.transform.childCount; child++) {
+			if (currentPlayer.transform.GetChild (child).GetComponent<SpriteRenderer> ()) {
+				currentPlayer.transform.GetChild (child).GetComponent<SpriteRenderer> ().flipX = flip;
+			}
+		}
+	}
+
+	Vector2 Jumping (float addedForce = 1)
 	{
 		Vector2 jump = new Vector2 (jumpingForce.x * Input.GetAxisRaw ("Horizontal"), jumpingForce.y * addedForce);
-		rb.AddForce (jump);
+		return jump;
 	}
-	
+
 	void MoveCamera ()
 	{
 		if (followCamera.GetComponent<Camera> ().orthographicSize > CameraSize) {
 			followCamera.GetComponent<Camera> ().orthographicSize = Mathf.Lerp (followCamera.GetComponent<Camera> ().orthographicSize, CameraSize, Time.deltaTime * 2);
 		}
 
-		Vector3 playerPosition = gameManager.currentPlayer.transform.position;
+		Vector3 playerPosition = GameManager.currentPlayer.transform.position;
 		Vector3 moveCameraPosition = new Vector3 (playerPosition.x, Mathf.Clamp (playerPosition.y, cameraBaseRestriction, Mathf.Infinity), -10);
 		followCamera.position = moveCameraPosition;
 	}

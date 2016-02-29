@@ -29,8 +29,8 @@ public class Bomb : MonoBehaviour
 
 	void ThrowBomb ()
 	{
-		GameObject thrownBomb = gameManager.currentPlayer.transform.GetChild (2).gameObject;
-		Vector2 direction = new Vector2 (throwingSpeed * gameManager.currentPlayer.transform.localScale.x, 10);
+		GameObject thrownBomb = GameManager.currentPlayer.transform.GetChild (2).gameObject;
+		Vector2 direction = new Vector2 (throwingSpeed * GameManager.currentPlayer.transform.localScale.x, 10);
 		thrownBomb.AddComponent<Rigidbody2D> ();
 
 		thrownBomb.transform.parent = null;

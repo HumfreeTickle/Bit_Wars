@@ -55,22 +55,24 @@ public class WeaponSelect : MonoBehaviour
 	// --- Now all there needs to be is a check to see if you've actually used the weapon
 	// --- Or are just switching.
 
-		if (gameManager.currentGameState == GameState.Menu) {
+		if (GameManager.currentGameState == GameState.Menu) {
 			// Destroys previous weapon
-			if (gameManager.currentPlayer.transform.childCount > 2) {
-				Destroy (gameManager.currentPlayer.transform.GetChild (2).gameObject);
+			if (GameManager.currentPlayer.transform.childCount > 2) {
+				Destroy (GameManager.currentPlayer.transform.GetChild (2).gameObject);
 			}
 
 			int buttonPressedIndex = transform.FindChild (buttonPressed.name).GetSiblingIndex ();
 
 			GameObject weaponSelected = weaponsList [buttonPressedIndex];
 			GameObject weapon = Instantiate (weaponSelected, 
-		                                gameManager.currentPlayer.transform.position + (offSetX * gameManager.currentPlayer.transform.localScale.x),
-		                                Quaternion.identity) as GameObject; 
-			weapon.transform.localScale = new Vector3 (weapon.transform.localScale.x * gameManager.currentPlayer.transform.localScale.x,
+				GameManager.currentPlayer.transform.position + (
+				offSetX * GameManager.currentPlayer.transform.localScale.x),
+				Quaternion.identity
+			) as GameObject; 
+			weapon.transform.localScale = new Vector3 (weapon.transform.localScale.x * GameManager.currentPlayer.transform.localScale.x,
 		                                          weapon.transform.localScale.y,
 		                                          weapon.transform.localScale.z);
-			weapon.transform.parent = gameManager.currentPlayer.transform;
+			weapon.transform.parent = GameManager.currentPlayer.transform;
 //			fireWeapon.weaponName = buttonPressed.name;
 
 //			print (buttonPressed.name);
