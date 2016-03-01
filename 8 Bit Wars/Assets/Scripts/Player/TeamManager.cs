@@ -31,7 +31,7 @@ public class TeamManager : MonoBehaviour {
 			Transform currentCharacter = transform.GetChild (character);
 
 			if (currentCharacter.position.x > centreOfTheMap.position.x) {
-				Move.FlipIt (currentCharacter.gameObject, !Move.facingRight);
+				Move.FlipIt (currentCharacter.gameObject);
 			}
 			currentCharacter.GetComponent<SpriteRenderer>().color = teamColour;
 			players.Add (currentCharacter.name);

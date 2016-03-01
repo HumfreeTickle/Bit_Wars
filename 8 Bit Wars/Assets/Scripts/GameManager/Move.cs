@@ -64,10 +64,10 @@ public class Move : MonoBehaviour
 	{
 		//might be better to see if the local scale x is positive or negative and adjust accordingly
 		if (Input.GetAxisRaw ("Horizontal") > 0 && !facingRight) {
-			FlipIt (GameManager.currentPlayer, !facingRight);				
+			FlipIt (GameManager.currentPlayer);				
 
 		} else if (Input.GetAxisRaw ("Horizontal") < 0 && facingRight) {
-			FlipIt (GameManager.currentPlayer, facingRight);
+			FlipIt (GameManager.currentPlayer);
 		}
 
 		if (Mathf.Abs (Input.GetAxisRaw ("Horizontal")) > 0) {
@@ -82,7 +82,7 @@ public class Move : MonoBehaviour
 	/// Flips the player based on which direction you are moving.
 	/// </summary>
 	/// <param name="player">Player to flip.</param>
-	static public void FlipIt (GameObject player, bool flip)
+	static public void FlipIt (GameObject player)
 	{
 		facingRight = !facingRight;
 
@@ -97,18 +97,6 @@ public class Move : MonoBehaviour
 			player.transform.GetChild (child).localScale = canvasScale;
 		}
 
-	}
-
-	static public void Flip (GameObject currentPlayer, bool flip)
-	{
-		SpriteRenderer sRen = currentPlayer.GetComponent<SpriteRenderer> ();
-		sRen.flipX = flip;
-
-		for (int child = 0; child < currentPlayer.transform.childCount; child++) {
-			if (currentPlayer.transform.GetChild (child).GetComponent<SpriteRenderer> ()) {
-				currentPlayer.transform.GetChild (child).GetComponent<SpriteRenderer> ().flipX = flip;
-			}
-		}
 	}
 
 	Vector2 Jumping (float addedForce = 1)

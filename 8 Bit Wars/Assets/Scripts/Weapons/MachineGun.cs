@@ -6,7 +6,8 @@ public class MachineGun : MonoBehaviour
 	private static GameManager gameManager = new GameManager ();
 	private static Turns turns = new Turns ();
 	private GameObject bullet;
-	private GameObject[] bulletPool = new GameObject[8];
+	private GameObject[] bulletObjectPool = new GameObject[8];
+	// bullet object pool
 
 	public float bulletSpeed;
 	public float distanceFromPlayer = 0.1f;
@@ -18,7 +19,6 @@ public class MachineGun : MonoBehaviour
 	public LayerMask whatToHit;
 	private Transform firePoint;
 	private Vector2 fireRotation;
-	// There needs to be a object pool for all the different bullets that need to be spawned
 
 	void Start ()
 	{
@@ -26,10 +26,10 @@ public class MachineGun : MonoBehaviour
 
 		firePoint = transform.FindChild ("FirePoint");
 
-//		for (int i = 0; i < bulletPool.Length; i++) {
+//		for (int i = 0; i < bulletObjectPool.Length; i++) {
 //			GameObject obj = (GameObject)Instantiate (bullet);
 //			obj.SetActive (false);
-//			bulletPool [i] = obj;
+//			bulletObjectPool [i] = obj;
 //		}
 
 		gameManager = GameObject.Find ("GameManger").GetComponent<GameManager> ();
@@ -39,9 +39,9 @@ public class MachineGun : MonoBehaviour
 
 	void Update ()
 	{
-		if (GameManager.canFire) {
+		if (GameManager.canFire && GameManager.currentGameState == GameState.Game) {
 			if (bullet) {
-				if (Input.GetKeyDown (KeyCode.F)) {
+				if (Input.GetMouseButtonDown (0)) {
 					if (!IsInvoking ("FireBullet")) {
 						InvokeRepeating ("FireBullet", 0, delayTime);
 					}
@@ -64,27 +64,43 @@ public class MachineGun : MonoBehaviour
 		                   );
 
 		Vector2 firePointPos = new Vector2 (firePoint.position.x, firePoint.position.y);
-		RaycastHit2D hit = Physics2D.Raycast (firePointPos, mousePos - firePointPos, 100, whatToHit);
+//		RaycastHit2D hit = Physics2D.Raycast (firePointPos, mousePos - firePointPos, 100, whatToHit);
 		Debug.DrawLine (firePointPos, mousePos);
 
 		fireRotation = mousePos - firePointPos;
 		fireRotation.Normalize ();
 
+		// figure out maths behind this
 		float rot_z = Mathf.Atan2 (fireRotation.y, fireRotation.x) * Mathf.Rad2Deg;
-		print(rot_z);
 		transform.localRotation = Quaternion.Euler (
 			0f, 
 			0f, 
-			Mathf.Clamp (rot_z, -45, 45)// * GameManager.currentPlayer.transform.localScale.x
+			rot_z * GameManager.currentPlayer.transform.localScale.x
+//			Mathf.Clamp (rot_z* GameManager.currentPlayer.transform.localScale.x, -45, 45)
 		);
 
-		if (rot_z > 90 || rot_z < -90) {
-			Move.FlipIt(GameManager.currentPlayer, false);
-		}else{
-			Move.FlipIt(GameManager.currentPlayer, true);
+		// still a glitch if you are facing right when you select the machine gun... but getting there
 
+		if (GameManager.currentPlayer.transform.localScale.x > 0) {
+			if (rot_z > 90 || rot_z < -90) {
+				bool rotate = true;
+				if (rotate) {
+					Move.FlipIt (GameManager.currentPlayer);
+					transform.localScale = transform.localScale*-1;
+					rotate = false;
+				}
+			}
 		}
-//		transform.localRotation = Quaternion.LookRotation(new Vector3(fireRotation.x, fireRotation.y, 0));
+		else if (GameManager.currentPlayer.transform.localScale.x < 0) {
+			if (rot_z < 90 && rot_z > -90) {
+				bool rotate = true;
+				if (rotate) {
+					Move.FlipIt (GameManager.currentPlayer);
+					transform.localScale = transform.localScale*-1;
+					rotate = false;
+				}
+			}
+		}
 	}
 
 	void FireBullet ()
@@ -95,10 +111,17 @@ public class MachineGun : MonoBehaviour
 
 		maxFire++;
 
-		if (maxFire <= bulletPool.Length) {
+		if (maxFire <= bulletObjectPool.Length) {
 			
 			Quaternion gunrotation = transform.localRotation;
 			print (gunrotation);
+			// instead of instatiating them I just need to grab them from the object pool
+			// Also need to change the destroy function on the bullets to just a disable command
+
+//			GameObject firedBullet = bulletObjectPool[maxFire];
+//			firedBullet.transform.position = firePoint.position;
+//			firedBullet.transform.rotation = gunrotation;
+
 			GameObject firedBullet = Instantiate (bullet, firePoint.position, gunrotation) as GameObject;
 
 			firedBullet.transform.localScale = new Vector3 (

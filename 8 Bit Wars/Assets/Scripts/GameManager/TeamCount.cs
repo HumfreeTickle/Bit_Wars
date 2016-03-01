@@ -7,27 +7,23 @@ public class TeamCount : MonoBehaviour {
 	private Transform Team;
 	private int teamCount;
 
-
-	// Use this for initialization
 	void Start () {
-		Team = GameObject.Find(transform.parent.name.Substring(0, 6)).transform	;
+		Team = GameObject.Find(transform.GetChild(0).name.Substring(0, 6)).transform; //Finds the correct Team based off the first 6 characters of the gameObject
+																					 // ie. Team 1 Status ==> Finds "Team 1"
 		teamCount = Team.childCount;
-		transform.parent.GetComponent<Image>().color = Team.GetComponent<TeamManager>().teamColour;
+		transform.GetChild(0).GetComponent<Image>().color = Team.GetComponent<TeamManager>().teamColour;
 	}
 	
-	// Update is called once per frame
 	void Update () {
-		GetComponent<Text>().text = Team.childCount.ToString();
-//		if(teamCount > Team.childCount){
-//			BarSize(transform.parent.GetComponent<RectTransform>());
-//			teamCount = Team.childCount;
-//		}
+		GetComponent<Text>().text = teamCount.ToString();
+		if(teamCount > Team.childCount){
+			teamCount = Team.childCount;
+			BarSize(transform.GetChild(0).GetComponent<RectTransform>());
+		}
 	}
 
 	void BarSize(RectTransform teamProgressBar){
-		float width = teamProgressBar.localScale.x;
-		float changedWidth = Mathf.Lerp(width, 0, teamCount/4);
-
+		float changedWidth = Mathf.Lerp(0, 1, (float)teamCount/4);
 		Vector3 newScale = new Vector3(changedWidth, teamProgressBar.localScale.y, teamProgressBar.localScale.z);
 		teamProgressBar.localScale = newScale;
 	}
